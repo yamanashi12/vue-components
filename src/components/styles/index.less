@@ -1,0 +1,39 @@
+@import './var.less';
+@import './@element-ui.less';
+
+body{
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  font: 12px Microsoft YaHei,PingFang SC,San Francisco,SimSunHelvetica Neue;
+}
+*{
+  box-sizing: border-box;
+}
+a{text-decoration:none;}
+/* search-box */
+.search-box{
+  margin-bottom: -22px;
+  &.normal{
+    margin-bottom: 0;
+  }
+  .el-checkbox-group .el-checkbox {
+    min-width: auto;
+  }
+}
+/* button-box */
+.button-box {
+  text-align: center;
+  margin: 40px 0 25px;
+  &.table{
+    text-align: left;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    .el-button--text{
+      min-width: 50px;
+    }
+  }
+  .el-button{
+    margin-right: 10px;
+  }
+}
