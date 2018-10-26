@@ -1,16 +1,18 @@
 export default {
   plugins: [
+    // {
+    //   name: 'Text',
+    //   title: '文本',
+    //   value: ''
+    // },
     {
-      name: 'EditorText',
-      title: '文本'
-    },
-    {
-      name: 'EditorImage',
+      name: 'Image',
       title: '图片'
     },
     {
-      name: 'EditorVideo',
-      title: '视频'
+      name: 'Video',
+      title: '视频',
+      value: ''
     }
   ]
 }

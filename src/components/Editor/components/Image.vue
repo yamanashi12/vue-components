@@ -1,13 +1,16 @@
 <template>
   <div class="">
-    <ImgGroupUpload v-model="item.value" :data="{maxHeight: 500, maxWidth: 1000}" :height="150" :width="`100%`"></ImgGroupUpload>
+    <template v-if="item.value && item.value.length > 0">
+      <img v-for="(item, index) in item.value" :src="item" :key="index" class="img"/>
+    </template>
+    <template v-else>
+      <p class="center">编辑图片</p>
+    </template>
   </div>
 </template>
 <script>
-import ImgGroupUpload from '@/components/ImgGroupUpload'
 export default {
   name: 'EditorImage',
-  components: { ImgGroupUpload },
   props: {
     item: {
       type: Object
@@ -20,3 +23,9 @@ export default {
   }
 }
 </script>
+<style lang="less" scoped>
+.img{
+  width: 100%;
+}
+</style>
+

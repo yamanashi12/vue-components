@@ -3,31 +3,42 @@
     <div class="Editor-area">
       <div class="Editor-area-content">
         <div class="Editor-area-content-scroll">
-          <div class="Editor-area-content-item" v-for="(item, index) in myValue" :key="index">
-            <component :is="item.name" :item="item" :ref="`${item.name}${index}`" :imgAction="imgAction" :videoAction="videoAction" :qiniuToken="qiniuToken"/>
-          </div>
+          <ContentItem v-for="(item, index) in myValue" :key="index" :index="index" :item="item" @select="handleSelect" :class="{'active': index === activeIndex}">
+            <template slot-scope="scope">
+              <component :is="`Editor${scope.item.name}`" :item="scope.item" :ref="`${item.name}${index}`"/>
+            </template>
+          </ContentItem>
         </div>
       </div>
     </div>
-    <div class="Editor-fun">
-      <el-button 
-        v-for="(item, index) in plugins" 
-        :key="index" 
-        @click="addComponents(item)">
-          {{item.title}}
-      </el-button>
+    <div class="Editor-handle">
+      <div class="Editor-fun">
+        <el-button 
+          v-for="(item, index) in plugins" 
+          :key="index" 
+          @click="addComponents(item)">
+            {{item.title}}
+        </el-button>
+      </div>
+      <div class="Editor-fun" v-if="active.name">
+        <component :is="`EditorEdit${active.name}`" :item="active" :imgAction="imgAction" :videoAction="videoAction" :qiniuToken="qiniuToken"/>
+      </div>
     </div>
   </div>
 </template>
 <script>
 import EditorJson from './Editor.json.js'
-import EditorText from './components/Text'
-import EditorVideo from './components/Video'
-import EditorImage from './components/Image'
 import * as api from './Editor.service.js'
 export default {
   name: 'Editor',
-  components: { EditorText, EditorVideo, EditorImage },
+  components: { 
+    EditorText: (resolve) => require(['./components/Text'], resolve), 
+    EditorVideo: (resolve) => require(['./components/Video'], resolve), 
+    EditorImage: (resolve) => require(['./components/Image'], resolve), 
+    ContentItem: (resolve) => require(['./components/ContentItem'], resolve),
+    EditorEditImage: (resolve) => require(['./components/EditImage'], resolve),
+    EditorEditVideo: (resolve) => require(['./components/EditVideo'], resolve)
+  },
   props: {
     value: {
       type: Array,
@@ -46,7 +57,9 @@ export default {
     return {
       myValue: this.value,
       plugins: EditorJson.plugins,
-      qiniuToken: {}
+      qiniuToken: {},
+      active: {},
+      activeIndex: 0,
     }
   },
   watch: {
@@ -67,6 +80,10 @@ export default {
     },
     removeComponents(i) {
       this.myValue.splice(i, 1)
+    },
+    handleSelect (index) {
+      this.active = this.myValue[index]
+      this.activeIndex = index
     }
   }
 }
@@ -104,41 +121,16 @@ export default {
       &-scroll{
         width: 100%;
       }
-      &-item {
-        width: 100%;
-        border: 1px dashed transparent;
-        border-bottom: 1px dashed @border-color-base;
-        .center {
-          text-align: center;
-        }
-        &:hover,
-        &.active {
-          border: 1px dashed @color-primary;
-        }
-      }
+      
     }
+  }
+  &-handle{
+    width: 400px;
   }
   &-fun {
-    width: 400px;
-    height: 200px;
-    padding: 20px;
-    margin-left: 20px;
+    padding: 30px;
+    margin-bottom: 20px;
     border: 1px solid @border-color-base;
-  }
-  .img-group-upload{
-    .img-group-item{
-      height: auto !important;
-      min-height: 150px;
-      margin-right: 0;
-      margin-bottom: 0;
-      button{
-        padding-left: 0;
-        padding-right: 0;
-      }
-      img{
-        width: 100%;
-      }
-    }
   }
 }
 </style>

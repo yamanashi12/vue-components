@@ -1,13 +1,21 @@
 <template>
-  <div class="editor-import-video" :class="['upvideo-btn', 'active-default']" >
-    <template v-if="item.value">
-      <video :src="item.value" crossorigin="anonymous" controls="controls" class="video-tag">
-        your browser does not support the video tag
-      </video>
-    </template>
-    <template v-else>
-      <p class="center">编辑视频</p>
-    </template>
+   <div v-loading="loading" class="file-upload">
+    <el-upload
+      v-bind="$props"
+      :key="key"
+      :data="{token: qiniuToken}"
+      :action="action"
+      :before-upload="handleBeforeUpload"
+      :on-success="handleSuccess"
+      :on-error="handleError"
+      :on-progress="handleProgress"
+      accept="video/mp4"
+      >
+      <el-button class="editor-import-video-btn">
+        <i class="el-icon-plus"></i>
+        <p>添加视频</p>
+      </el-button>
+    </el-upload>
   </div>
 </template>
 <script>
@@ -15,7 +23,7 @@ import FileUpload from '@/components/FileUpload'
 import * as api from '../Editor.service.js'
 // import videoUpload from '@/components/VideoUpload'
 export default {
-  name: 'EditorViedo',
+  name: 'EditorEditViedo',
   components: { FileUpload },
   props: {
     item: {
@@ -38,38 +46,12 @@ export default {
     }
   },
   mounted() {
-    // api.getVideoToken().subscribe(res => {
-    //   this.token = res.uptoken
-    // })
   },
   methods: {
-    // 上传视频时
-    // 上传进度
     handleBeforeUpload(file) {
-      // const prefix = process.env.NODE_ENV === 'development' ? 'api' : ''
-      // this.uploadUrl = `/${prefix}${this.videoAction}`
-      // const verify = this.uploadRules(file)
-      // if (verify) {
-      //   const qiniu = require('qiniu-js')
-      //   console.log(file)
-      //   const config = {
-      //     useCdnDomain: true,
-      //     region: qiniu.region.z2
-      //   }
-      //   const putExtra = {
-      //     fname: "",
-      //     params: {},
-      //     mimeType: [] || null
-      //   }
-      //   const observable = qiniu.upload(file, file.name, this.qiniuToken, config, putExtra)
-      //   const subscription = observable.subscribe(res => {
-      //     console.log(res)
-      //   },
-      //   error =>{
-      //     console.log(error)
-      //   }) 
-      // }
-      return true
+      const prefix = process.env.NODE_ENV === 'development' ? 'api' : ''
+      this.uploadUrl = `/${prefix}${this.videoAction}`
+      return this.uploadRules(file)
     },
     uploadRules (file) {
       let size = file.size / 1024 / 1024
@@ -88,6 +70,9 @@ export default {
         return false
       }
     },
+    handleProgress() {
+      this.loading = true
+    },
     // 删除文件
     removeFile() {
       this.$confirm('此操作将删除该视频, 是否继续?', '提示', { type: 'warning' })
@@ -103,13 +88,12 @@ export default {
       this.loading = false
       if (res.key && res.hash) {
         this.file = '//image.yunjiweidian.com/' + res.key
-        this.$emit('on-change', this.file)
-        this.$emit('success', this.file)
+        this.item.value = this.file
+        this.$emit('updata:item', this.item)
         this.key = Math.random()
           .toString(36)
           .substr(2)
       } else {
-        this.$emit('exception', res)
         if (res) {
           if (!this.$listeners.exception) {
             this.$message.error(res.msg || '文件上传失败')
